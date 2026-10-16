@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/OlegHQ/smdctl/internal/systemd"
+	"github.com/olegpustovit/smdctl/internal/systemd"
 	"github.com/olekukonko/tablewriter"
 	"github.com/olekukonko/tablewriter/tw"
 	"gopkg.in/yaml.v3"

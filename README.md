@@ -18,7 +18,7 @@ A Docker-like CLI interface for managing systemd services. Designed to be AI-fri
 Install the latest Linux release (amd64 or arm64):
 
 ```bash
-curl --proto '=https' --tlsv1.2 -LsSf https://github.com/OlegHQ/smdctl/releases/latest/download/smdctl-installer.sh | sh
+curl --proto '=https' --tlsv1.2 -LsSf https://github.com/olegpustovit/smdctl/releases/latest/download/smdctl-installer.sh | sh
 ```
 
 The installer verifies the archive against the release's `checksums.txt` and writes only
@@ -30,7 +30,7 @@ To build from source instead:
 
 ```bash
 # Clone the repository
-git clone https://github.com/OlegHQ/smdctl.git
+git clone https://github.com/olegpustovit/smdctl.git
 cd smdctl
 
 # Build and install

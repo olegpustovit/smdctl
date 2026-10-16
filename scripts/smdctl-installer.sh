@@ -3,7 +3,7 @@ set -eu
 
 APP_NAME=smdctl
 APP_VERSION=${SMDCTL_VERSION:-latest}
-REPOSITORY=${SMDCTL_REPOSITORY:-OlegHQ/smdctl}
+REPOSITORY=${SMDCTL_REPOSITORY:-olegpustovit/smdctl}
 
 usage() {
     cat <<EOF

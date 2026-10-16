@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/OlegHQ/smdctl/internal/systemd"
+	"github.com/olegpustovit/smdctl/internal/systemd"
 )
 
 func captureStdout(t *testing.T, fn func()) string {

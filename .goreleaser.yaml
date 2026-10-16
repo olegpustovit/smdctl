@@ -21,7 +21,7 @@ builds:
     flags:
       - -trimpath
     ldflags:
-      - -s -w -X github.com/OlegHQ/smdctl/internal/commands.version={{ .Version }}
+      - -s -w -X github.com/olegpustovit/smdctl/internal/commands.version={{ .Version }}
 
 archives:
   - id: smdctl
@@ -48,7 +48,7 @@ changelog:
 
 release:
   github:
-    owner: OlegHQ
+    owner: olegpustovit
     name: smdctl
   header: |
     ## Install smdctl {{ .Version }}
@@ -56,7 +56,7 @@ release:
     Linux (amd64 and arm64):
 
     ```sh
-    curl --proto '=https' --tlsv1.2 -LsSf https://github.com/OlegHQ/smdctl/releases/download/{{ .Tag }}/smdctl-installer.sh | SMDCTL_VERSION={{ .Version }} sh
+    curl --proto '=https' --tlsv1.2 -LsSf https://github.com/olegpustovit/smdctl/releases/download/{{ .Tag }}/smdctl-installer.sh | SMDCTL_VERSION={{ .Version }} sh
     ```
 
     The installer verifies the archive against `checksums.txt` and writes only to `$HOME/.local/bin`.

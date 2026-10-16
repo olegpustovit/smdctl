@@ -5,9 +5,9 @@ import (
 	"os"
 	"strings"
 
-	envhelper "github.com/OlegHQ/smdctl/internal/env"
-	"github.com/OlegHQ/smdctl/internal/output"
-	"github.com/OlegHQ/smdctl/internal/systemd"
+	envhelper "github.com/olegpustovit/smdctl/internal/env"
+	"github.com/olegpustovit/smdctl/internal/output"
+	"github.com/olegpustovit/smdctl/internal/systemd"
 	"github.com/spf13/cobra"
 )
 

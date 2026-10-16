@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/OlegHQ/smdctl/internal/commands"
+	"github.com/olegpustovit/smdctl/internal/commands"
 )
 
 func main() {

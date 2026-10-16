@@ -191,4 +191,4 @@ EXAMPLES:
 For command-specific help, use:
   smdctl help <command>
 
-For more information: https://github.com/OlegHQ/smdctl
+For more information: https://github.com/olegpustovit/smdctl

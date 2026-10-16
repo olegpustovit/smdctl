@@ -8,7 +8,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/OlegHQ/smdctl/internal/systemd"
+	"github.com/olegpustovit/smdctl/internal/systemd"
 	"gopkg.in/yaml.v3"
 )
 

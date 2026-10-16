@@ -8,9 +8,9 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/OlegHQ/smdctl/internal/output"
-	"github.com/OlegHQ/smdctl/internal/process"
-	"github.com/OlegHQ/smdctl/internal/systemd"
+	"github.com/olegpustovit/smdctl/internal/output"
+	"github.com/olegpustovit/smdctl/internal/process"
+	"github.com/olegpustovit/smdctl/internal/systemd"
 	"github.com/spf13/cobra"
 )
 

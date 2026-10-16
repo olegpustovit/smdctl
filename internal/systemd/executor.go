@@ -7,7 +7,7 @@ import (
 	"os/exec"
 	"strings"
 
-	"github.com/OlegHQ/smdctl/internal/process"
+	"github.com/olegpustovit/smdctl/internal/process"
 )
 
 type Executor interface {

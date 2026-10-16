@@ -1,4 +1,4 @@
-module github.com/OlegHQ/smdctl
+module github.com/olegpustovit/smdctl
 
 go 1.23.0
 

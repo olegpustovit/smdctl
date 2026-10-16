@@ -6,7 +6,7 @@ import (
 	"os"
 	"os/exec"
 
-	"github.com/OlegHQ/smdctl/internal/process"
+	"github.com/olegpustovit/smdctl/internal/process"
 )
 
 func NeedsSudoForSystem() bool {
