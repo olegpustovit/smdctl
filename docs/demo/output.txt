@@ -1,0 +1,50 @@
+EXPLANATION: smdctl run demo-service --system -- /usr/bin/printf demo
+
+This command will perform the following steps:
+
+1. Select systemd mode (default: userspace)
+   → system mode
+
+2. Check for sudo privileges
+   → If not root, re-execute with sudo
+
+3. Generate systemd service file
+   → /etc/systemd/system/smdctl-demo-service.service
+
+4. Reload systemd daemon
+   → systemctl daemon-reload
+
+5. Enable service (start at boot)
+   → systemctl enable smdctl-demo-service
+
+6. Start service immediately
+   → systemctl start smdctl-demo-service
+
+Generated service file:
+────────────────────────────────────────────────────────────
+[Unit]
+Description=smdctl managed service: demo-service
+After=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/printf demo
+Restart=always
+RestartSec=5s
+WorkingDirectory=/
+EnvironmentFile=-/etc/smdctl/env/demo-service.env
+TimeoutStartSec=90
+TimeoutStopSec=30
+KillMode=control-group
+
+[Install]
+WantedBy=multi-user.target
+────────────────────────────────────────────────────────────
+
+To execute this command:
+  smdctl run demo-service --system -- /usr/bin/printf demo
+
+To see the result:
+  smdctl status demo-service
+  systemctl status smdctl-demo-service
+  journalctl -u smdctl-demo-service -n 100

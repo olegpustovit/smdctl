@@ -1,312 +1,44 @@
-# smdctl - Systemd Control CLI
+# smdctl
 
-A Docker-like CLI interface for managing systemd services. Designed to be AI-friendly with comprehensive help output that serves as structured guidance for LLM agents.
+Manage Linux systemd services with command-line arguments or YAML configuration. smdctl writes unit files and calls systemctl for lifecycle operations.
 
-## Features
+![Actual explanation output with a generated systemd unit](docs/demo/explain.png)
 
-- 🐳 **Docker-like syntax** - Familiar commands for systemd management
-- 🤖 **AI-friendly** - Help output designed as prompts for LLM agents
-- 📝 **YAML configuration** - Define services like docker-compose
-- 🔐 **Automatic privilege escalation** - Prompts for sudo only when needed (system mode)
-- 📊 **Resource monitoring** - View CPU and memory usage
-- 🎯 **Service lifecycle** - Create, start, stop, restart, remove
-- 📋 **Environment management** - Easy environment variable editing
-- 🔍 **Service inspection** - YAML output of service configuration
+The [local example](docs/demo/README.md) previews an inline service definition. It writes no unit files and starts no service.
 
-## Installation
+## Build and preview
 
-Install the latest Linux release (amd64 or arm64):
+Use Go 1.23 or later:
 
-```bash
-curl --proto '=https' --tlsv1.2 -LsSf https://github.com/olegpustovit/smdctl/releases/latest/download/smdctl-installer.sh | sh
-```
-
-The installer verifies the archive against the release's `checksums.txt` and writes only
-`smdctl` to `$HOME/.local/bin`. It does not edit shell profiles or `PATH`. Set
-`SMDCTL_INSTALL_DIR` to choose another destination, or `SMDCTL_VERSION` to install a specific
-release.
-
-To build from source instead:
-
-```bash
-# Clone the repository
+```sh
 git clone https://github.com/olegpustovit/smdctl.git
 cd smdctl
-
-# Build and install
-make install
-
-# Or just build
 make build
-./target/release/smdctl help
+./target/release/smdctl explain run demo-service --system -- /usr/bin/printf demo
 ```
 
-## Quick Start
+The `explain run` command prints the proposed operations and unit text. It is an explanation for inline arguments, not full validation of every YAML or run option.
 
-### Create and start a service
+[Release v0.1.1](https://github.com/olegpustovit/smdctl/releases/tag/v0.1.1) includes Linux amd64 and arm64 archives, checksums and an installer. The source build, rather than that installer, was used for the capture. `make install` uses sudo and installs to `/usr/local/bin`.
 
-```bash
-# Run a Python web server
-smdctl run webapp -e PORT=8000 -- /usr/bin/python3 -m http.server 8000
+## Start a service
 
-# Run a Node.js application
-smdctl run nodeapp \
-  -e NODE_ENV=production \
-  -e PORT=3000 \
-  --restart always \
-  --workdir /opt/nodeapp \
-  -- /usr/bin/node server.js
+On a Linux host with a working systemd user manager:
+
+```sh
+smdctl run demo-web -- /usr/bin/python3 -m http.server 8000
+smdctl status demo-web
+smdctl logs demo-web
+smdctl stop demo-web
+smdctl rm demo-web
 ```
 
-### List services
+Use the actual path to Python on your host. Unlike `explain`, these commands change service state. The default mode uses your systemd user manager. Detected privileged ports or `--system` select system mode, which can require sudo.
 
-```bash
-# Show running services
-smdctl ps
+See the [configuration and command reference](docs/reference.md) for YAML, timers, file locations and troubleshooting. Sample YAML files are in [examples](examples/).
 
-# Show all services
-smdctl ps -a
-```
+## Verification
 
-### View logs
+The Go test suite, go vet and source build passed on Linux ARM64. The captured explanation uses the real unit generator. It does not establish service startup, timers, privilege escalation or monitoring on this host.
 
-```bash
-# View last 50 lines
-smdctl logs webapp
-
-# Follow logs (live tail)
-smdctl logs -f webapp
-
-# Show last 100 lines
-smdctl logs -n 100 webapp
-```
-
-### Control services
-
-```bash
-# Start a service
-smdctl start webapp
-
-# Stop a service
-smdctl stop webapp
-
-# Restart a service
-smdctl restart webapp
-
-# Remove a service
-smdctl rm webapp
-```
-
-## YAML Configuration
-
-Create a `smdctl.yml` file to define your service:
-
-```yaml
-name: webapp
-description: My web application
-command: /usr/bin/python3
-args:
-  - /opt/app/server.py
-  - --port
-  - "8080"
-workdir: /opt/app
-user: webapp
-environment:
-  PORT: "8080"
-  DEBUG: "true"
-  DB_HOST: localhost
-restart: always
-timeout_start: 90
-timeout_stop: 30
-private_tmp: true
-protect_system: full
-limit_nofile: 65536
-
-# Optional scheduled tasks (systemd timers)
-tasks:
-  - name: cleanup
-    description: Daily cleanup
-    command: /usr/bin/python3
-    args:
-      - -m
-      - app.cleanup
-    schedule:
-      on_calendar: daily
-
-  - name: report
-    command: /opt/app/bin/report
-    schedule:
-      on_unit_active_sec: 6h
-```
-
-Then run:
-
-```bash
-# Run from config file
-smdctl run -f smdctl.yml
-
-# Override YAML values with CLI flags
-smdctl run -f smdctl.yml -e PORT=9090
-
-# Force system mode (required for privileged ports <1024)
-smdctl run --system -f smdctl.yml
-```
-
-## Commands
-
-### Core Commands
-
-- `run` - Create and start a new service
-- `ps` - List services
-- `tasks` - List scheduled tasks (systemd timers)
-- `start` - Start one or more services
-- `stop` - Stop one or more services
-- `restart` - Restart one or more services
-- `rm` - Remove a service
-- `logs` - View service logs
-- `status` - Show detailed service status
-- `env` - Edit environment variables
-- `inspect` - Show service configuration (YAML)
-- `explain` - Show what a command will do (dry-run)
-
-### Run Command Options
-
-```
--f, --file FILE              YAML config file
--e, --env KEY=VALUE          Environment variable (repeatable)
---restart POLICY             Restart policy: no|on-failure|always (default: always)
---user USER                  Run as specific user
---workdir PATH               Working directory
---description TEXT           Service description
---timeout-start SECONDS      Startup timeout (default: 90)
---timeout-stop SECONDS       Stop timeout (default: 30)
---kill-mode MODE             Kill mode: control-group|process|mixed
---private-tmp                Use private /tmp directory
---protect-system LEVEL       Protect system: no|strict|full
---no-new-privileges          Prevent privilege escalation
---limit-nofile N             File descriptor limit
---after TARGET               systemd After= dependency (repeatable)
---wants TARGET               systemd Wants= dependency (repeatable)
-```
-
-## AI Assistant Workflow Guidance
-
-This tool is designed to be AI-friendly. Here's the typical workflow for AI agents:
-
-### After creating a service
-
-```bash
-smdctl status <name>    # Check if started successfully
-smdctl logs -f <name>   # View live logs
-smdctl ps               # List all services
-```
-
-### If a service fails to start
-
-```bash
-smdctl status <name>      # Check detailed status
-smdctl logs -n 50 <name>  # View recent logs
-smdctl env <name>         # Check environment variables
-smdctl inspect <name>     # View full configuration
-```
-
-### To modify a service
-
-```bash
-smdctl stop <name>     # Stop the service
-smdctl env <name>      # Edit environment variables
-smdctl start <name>    # Start with new settings
-```
-
-### Troubleshooting
-
-```bash
-# 1. Check service state
-smdctl status <name>
-
-# 2. View recent logs
-smdctl logs -n 100 <name>
-
-# 3. Inspect full configuration
-smdctl inspect <name>
-
-# 4. Raw systemd status (userspace default)
-systemctl --user status smdctl-<name>
-
-# 5. Raw journal logs (userspace default)
-journalctl --user -u smdctl-<name> -n 100
-
-# If the service is running in system mode:
-# systemctl status smdctl-<name>
-# journalctl -u smdctl-<name> -n 100
-```
-
-## How It Works
-
-- Default: deploys in userspace (systemd `--user`)
-- Switches to system mode only for privileged ports (`<1024`) or `--system`
-- Userspace unit files: `~/.config/systemd/user/smdctl-<name>.service`
-- Userspace env files: `~/.config/smdctl/env/<name>.env`
-- System mode unit files: `/etc/systemd/system/smdctl-<name>.service`
-- System mode env files: `/etc/smdctl/env/<name>.env`
-- All services are prefixed with `smdctl-` to avoid conflicts
-- Standard `systemctl`/`journalctl` commands are used under the hood
-
-## Examples
-
-See the `examples/` directory for sample YAML configurations:
-
-- `webapp.yml` - Python Flask application
-- `nodeapp.yml` - Node.js API service
-- `worker.yml` - Background job processor
-
-## Requirements
-
-- Linux with systemd
-- Go 1.23+ (for building)
-- sudo access (only for system mode / privileged ports)
-
-## Development
-
-```bash
-# Build
-make build
-
-# Run tests
-make test
-
-# Static analysis
-make vet
-
-# Format
-make fmt
-
-# Clean build artifacts
-make clean
-
-# Install locally
-make install
-```
-
-## Design Philosophy
-
-- **Layered packages** — `cmd/smdctl` is the executable entry point; `internal/commands` owns the
-  Cobra command tree and handlers, with systemd models and adapters in `internal/systemd`.
-- **Testable process boundary** — systemctl calls use an `Executor` interface so lifecycle behavior
-  can be verified without a running systemd manager.
-- **Ecosystem formats** — Cobra handles command parsing and yaml.v3 handles service configuration.
-- **Explicit dependencies** — adapters are passed to managers; command behavior stays at the CLI edge.
-
-## License
-
-MIT
-
-## Contributing
-
-Contributions welcome! Please open an issue or PR.
-
-See [CHANGELOG.md](CHANGELOG.md) for release history.
-
-## Author
-
-Built with ❤️ for AI-friendly system administration
+[MIT license](LICENSE)
